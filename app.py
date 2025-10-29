@@ -1,11 +1,23 @@
 import pandas as pd
 import streamlit as st
 import plotly.express as px
+import os
 
 # -------------------------
 # Cargar y preparar datos
 # -------------------------
-crop_data = pd.read_csv("C:/Users/k_lei/Documents/america_crop_production/america_crop_production/Production_Crops_E_Americas.csv", encoding='latin-1') 
+
+# Obtener la carpeta donde está app.py
+base_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Construir la ruta relativa al CSV
+csv_path = os.path.join(base_dir, "Production_Crops_E_Americas.csv")
+
+# Leer el CSV con el encoding que tenías
+crop_data = pd.read_csv(csv_path, encoding='latin-1')
+
+
+#crop_data = pd.read_csv("C:/Users/k_lei/Documents/america_crop_production/america_crop_production/Production_Crops_E_Americas.csv", encoding='latin-1') 
 
 # Filtrar por elemento
 production = crop_data[crop_data['Element'] == 'Production'].copy()
