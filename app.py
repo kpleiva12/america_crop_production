@@ -74,7 +74,7 @@ with tab1:
     )
 
     # Chart selection
-    show_hist = st.checkbox("Show Histograma")
+    show_hist = st.checkbox("Show Histogram")
     show_scatter = st.checkbox("Show Scatter Plot")
 
     if st.button("Generate chart by year", key="btn_hist_year"):
@@ -97,7 +97,7 @@ with tab1:
                         x="Country",
                         y="Value",
                         color="Country",
-                        title="Histograma - " + title_base
+                        title="Histogram - " + title_base
                     )
                     st.plotly_chart(fig_hist, use_container_width=True)
 
@@ -108,7 +108,7 @@ with tab1:
                         y="Value",
                         color="Country",
                         size="Value",
-                        title="Dispersión - " + title_base
+                        title="Scatter Plot - " + title_base
                     )
                     st.plotly_chart(fig_scatter, use_container_width=True)
 
@@ -119,7 +119,7 @@ with tab1:
 with tab2:
     st.subheader("Temporal trend comparison")
 
-    countries_line = st.multiselect("Country(es) to compare:", sorted(df_long["Country"].unique()), default=["Costa Rica"])
+    countries_line = st.multiselect("Country(ies) to compare:", sorted(df_long["Country"].unique()), default=["Costa Rica"])
     crop_line = st.selectbox("Crop:", sorted(df_long["Item"].unique()), key="crop_line")
     element_line = st.selectbox("Variable:", ["Production","Area harvested","Yield"], key="element_line")
 
@@ -133,6 +133,6 @@ with tab2:
         if trend_data.empty:
             st.warning("No data available for this combination.")
         else:
-            title = f"{trend_data['Description'].iloc[0]} de {crop_line} [{trend_data['Unit'].iloc[0]}]"
+            title = f"{trend_data['Description'].iloc[0]} of {crop_line} [{trend_data['Unit'].iloc[0]}]"
             fig = px.line(trend_data, x="Year", y="Value", color="Country", markers=True, title=title)
             st.plotly_chart(fig, use_container_width=True)
