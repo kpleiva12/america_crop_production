@@ -4,27 +4,27 @@ import plotly.express as px
 import os
 
 # -------------------------
-# Cargar y preparar datos
+# Load and prepare data
 # -------------------------
 
-# Obtener la carpeta donde está app.py
+# Get the folder where app.py is located
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
-# Construir la ruta relativa al CSV
+# Build the relative path to the CSV
 csv_path = os.path.join(base_dir, "Production_Crops_E_Americas.csv")
 
-# Leer el CSV con el encoding que tenías
+# Read the CSV file
 crop_data = pd.read_csv(csv_path, encoding='latin-1')
 
 
 #crop_data = pd.read_csv("C:/Users/k_lei/Documents/america_crop_production/america_crop_production/Production_Crops_E_Americas.csv", encoding='latin-1') 
 
-# Filtrar por elemento
+# Filter by element
 production = crop_data[crop_data['Element'] == 'Production'].copy()
 area = crop_data[crop_data['Element'] == 'Area harvested'].copy()
 yield_ = crop_data[crop_data['Element'] == 'Yield'].copy()
 
-# Extraer columnas de años
+# Extract year columns
 years = [col for col in production.columns if col.startswith('Y') and not col.endswith('F')]
 
 def melt_element(df, element_name, unit, desc):
@@ -41,26 +41,28 @@ def melt_element(df, element_name, unit, desc):
     df_long['Description'] = desc
     return df_long
 
-production_long = melt_element(production, "Production", "Tonnes", "Total producido")
-area_long = melt_element(area, "Area harvested", "ha", "Área utilizada para cosecha")
-yield_long = melt_element(yield_, "Yield", "Hg/ha", "Relación producción / área")
+production_long = melt_element(production, "Production", "Tonnes", "Total produced")
+area_long = melt_element(area, "Area harvested", "ha", "Area used for harvest")
+yield_long = melt_element(yield_, "Yield", "Hg/ha", "Production to area ratio")
 
 df_long = pd.concat([production_long, area_long, yield_long], ignore_index=True)
 df_long.dropna(subset=["Value"], inplace=True)
 df_long.rename(columns={"Area":"Country"}, inplace=True)
 
 # -------------------------
-# Interfaz de Streamlit
+# Streamlit Interface
 # -------------------------
-st.title("📊 Explorador de Producción Agrícola en América")
+st.title("📊 Agricultural Production Explorer in the Americas")
+st.write("Interactive visualization of data from the Food and Agriculture Organization of the United Nations (FAO).")
 
-tab1, tab2 = st.tabs(["Distribución por Año", "Tendencia Temporal"])
+
+tab1, tab2 = st.tabs(["Yearly Distribution", "Temporal Trend"])
 
 with tab1:
-    st.subheader("Distribución por año - todos los países")
+    st.subheader("Yearly Distribution - all countries")
 
     year_hist = st.slider(
-        "Selecciona el año:",
+        "Select year:",
         int(df_long["Year"].min()),
         int(df_long["Year"].max()),
         value=int(df_long["Year"].max())
@@ -71,23 +73,23 @@ with tab1:
         key="element_hist2"
     )
 
-    # Casillas de verificación para gráficos
-    show_hist = st.checkbox("Mostrar Histograma")
-    show_scatter = st.checkbox("Mostrar Dispersión")
+    # Chart selection
+    show_hist = st.checkbox("Show Histograma")
+    show_scatter = st.checkbox("Show Scatter Plot")
 
-    if st.button("Generar gráfico por año", key="btn_hist_year"):
+    if st.button("Generate chart by year", key="btn_hist_year"):
         filtered_hist = df_long[
             (df_long["Year"] == year_hist) &
             (df_long["Element"] == element_hist)
         ]
 
         if filtered_hist.empty:
-            st.warning("No hay datos para este año y variable.")
+            st.warning("No data available for this year and variable.")
         else:
-            title_base = f"{filtered_hist['Description'].iloc[0]} ({element_hist}) en {year_hist} [{filtered_hist['Unit'].iloc[0]}]"
+            title_base = f"{filtered_hist['Description'].iloc[0]} in {year_hist} [{filtered_hist['Unit'].iloc[0]}]"
 
             if not show_hist and not show_scatter:
-                st.warning("Selecciona al menos un tipo de gráfico.")
+                st.warning("Please select at least one chart type.")
             else:
                 if show_hist:
                     fig_hist = px.histogram(
@@ -112,16 +114,16 @@ with tab1:
 
 
 # =====================================
-# TAB 2: Tendencia Temporal
+# TAB 2: Temporal Trend
 # =====================================
 with tab2:
-    st.subheader("Comparación de tendencia temporal")
+    st.subheader("Temporal trend comparison")
 
-    countries_line = st.multiselect("País(es) a comparar:", sorted(df_long["Country"].unique()), default=["Costa Rica"])
-    crop_line = st.selectbox("Cultivo:", sorted(df_long["Item"].unique()), key="crop_line")
+    countries_line = st.multiselect("Country(es) to compare:", sorted(df_long["Country"].unique()), default=["Costa Rica"])
+    crop_line = st.selectbox("Crop:", sorted(df_long["Item"].unique()), key="crop_line")
     element_line = st.selectbox("Variable:", ["Production","Area harvested","Yield"], key="element_line")
 
-    if st.button("Generar tendencia temporal"):
+    if st.button("Generate temporal trend"):
         trend_data = df_long[
             (df_long["Country"].isin(countries_line)) &
             (df_long["Item"]==crop_line) &
@@ -129,7 +131,7 @@ with tab2:
         ]
 
         if trend_data.empty:
-            st.warning("No hay datos para esta combinación.")
+            st.warning("No data available for this combination.")
         else:
             title = f"{trend_data['Description'].iloc[0]} de {crop_line} [{trend_data['Unit'].iloc[0]}]"
             fig = px.line(trend_data, x="Year", y="Value", color="Country", markers=True, title=title)
