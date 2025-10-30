@@ -2,7 +2,7 @@
 
 Crop statistics for 173 agricultural products in the Americas, using FAO data sourced from Kaggle.
 
-This Streamlit web app provides an interactive visualization of agricultural data from the Food and Agriculture Organization (FAO).
+This Streamlit web app (https://america-crop-production.onrender.com) provides an interactive visualization of agricultural data from the Food and Agriculture Organization (FAO).
 It allows users to explore production, harvested area, and yield data for multiple crops across countries in the Americas.
 
 🔍 Main features
