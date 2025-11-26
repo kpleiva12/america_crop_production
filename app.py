@@ -17,7 +17,6 @@ csv_path = os.path.join(base_dir, "Production_Crops_E_Americas.csv")
 crop_data = pd.read_csv(csv_path, encoding='latin-1')
 
 
-#crop_data = pd.read_csv("C:/Users/k_lei/Documents/america_crop_production/america_crop_production/Production_Crops_E_Americas.csv", encoding='latin-1') 
 
 # Filter by element
 production = crop_data[crop_data['Element'] == 'Production'].copy()
